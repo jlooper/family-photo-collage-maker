@@ -1,0 +1,32 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title = "Family Holiday Collage Maker" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Create beautiful holiday collages with your family photos" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" defer></script>
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      <slot />
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  html {
+    font-family: system-ui, sans-serif;
+  }
+</style>
+
