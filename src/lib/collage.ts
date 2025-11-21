@@ -20,7 +20,8 @@ export function buildCollageUrl(
   
   const baseUrl = `https://res.cloudinary.com/${cloudName}/image/upload`;
 
-  // Base transformation: set dimensions and quality
+  // Base transformation: set canvas size and quality
+  // This creates/resizes the canvas that overlays will be applied to
   const baseTransform = 'w_1600,h_900,c_fill,q_auto,f_auto';
 
   // Require exactly 5 photos
@@ -188,27 +189,34 @@ export function buildCollageUrl(
   const encodedText = encodeURIComponent(textContent);
   // Text overlay: l_text:<font>:<text>,<color>/fl_layer_apply,<position>
   // Color must be in same component as text overlay (per docs)
-  // Use g_south to center horizontally, and position text at vertical center of ribbon
-  // Ribbon bottom is at ribbonBottomMargin, ribbon top is at ribbonBottomMargin + ribbonHeight
-  // Center of ribbon is at: ribbonBottomMargin + (ribbonHeight / 2)
-  // This positions the text baseline/center at the vertical center of the ribbon
-  // Using a festive script font: Pacifico for a playful, rounded holiday feel
-  const textYFromBottom = ribbonBottomMargin + Math.round(ribbonHeight / 2);
-  const textOverlay = `l_text:Pacifico_70:${encodedText},co_rgb:000000/fl_layer_apply,g_south,y_${Math.round(textYFromBottom)}`;
+  // Center text both horizontally and vertically within the ribbon using g_center
+  // Ribbon bottom is at ribbonBottomMargin (20px) from bottom
+  // Ribbon height is ribbonHeight (100px)
+  // Ribbon center from bottom = ribbonBottomMargin + (ribbonHeight / 2) = 20 + 50 = 70px
+  // Ribbon center from top = canvasHeight - ribbonCenterFromBottom = 900 - 70 = 830px
+  // Canvas center y = canvasHeight / 2 = 450px from top
+  // With g_center, y is offset from center: positive moves down, negative moves up
+  // To center at ribbon center: y = ribbonCenterFromTop - canvasCenter = 830 - 450 = 380px
+  const ribbonCenterFromBottom = ribbonBottomMargin + (ribbonHeight / 2);
+  const ribbonCenterFromTop = canvasHeight - ribbonCenterFromBottom;
+  const canvasCenter = canvasHeight / 2;
+  const yOffsetFromCenter = ribbonCenterFromTop - canvasCenter;
+  const textOverlay = `l_text:Pacifico_70:${encodedText},co_rgb:000000/fl_layer_apply,g_center,y_${Math.round(yOffsetFromCenter)}`;
 
   // Background public ID
   const backgroundId = 'holiday-assets/collage-bg';
 
   // Assemble the full URL
-  // Order: background, base transform, photo overlays, white ribbon, text overlay
-  // Background must come first, then transformations are applied to it
+  // Cloudinary URL structure: /image/upload/{transformations}/{overlays}/{base_public_id}
+  // Order: base transform, photo overlays, white ribbon, text overlay, background public_id
+  // The transformations are applied to the background image, then overlays are added on top
   // White ribbon comes before text so it appears behind it
   const segments = [
-    backgroundId,
     baseTransform,
     ...photoOverlays,
     whiteRibbon,
     textOverlay,
+    backgroundId,
   ];
 
   const fullUrl = `${baseUrl}/${segments.join('/')}`;

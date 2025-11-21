@@ -710,7 +710,7 @@ export default function FamilyCollageApp() {
       {/* Generated Collage */}
       <section className="bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 rounded-xl shadow-lg border-2 border-red-300 p-6 space-y-4">
         <h2 className="text-2xl font-bold text-red-700">
-          Your Holiday Collage
+          Your Holiday Card
         </h2>
 
         {photosForCollage.length < 5 ? (
@@ -744,7 +744,7 @@ export default function FamilyCollageApp() {
                     </div>
                   </div>
                   <p className="text-lg font-bold text-red-600 mt-4 animate-pulse">
-                    Creating your holiday collage...
+                    Creating your holiday card collage...
                   </p>
                 </div>
               ) : (
