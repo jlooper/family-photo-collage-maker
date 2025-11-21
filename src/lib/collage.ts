@@ -182,7 +182,8 @@ export function buildCollageUrl(
   
   // Build text overlay (placed on top of white ribbon, center-aligned)
   const currentYear = new Date().getFullYear();
-  const textContent = `${familyName} – Holiday ${currentYear}`;
+  // Use a regular hyphen instead of em dash to avoid encoding issues
+  const textContent = `${familyName} - Holiday ${currentYear}`;
   // URL encode the text
   const encodedText = encodeURIComponent(textContent);
   // Text overlay: l_text:<font>:<text>,<color>/fl_layer_apply,<position>
@@ -192,21 +193,22 @@ export function buildCollageUrl(
   // Center of ribbon is at: ribbonBottomMargin + (ribbonHeight / 2)
   // This positions the text baseline/center at the vertical center of the ribbon
   // Using a festive script font: Pacifico for a playful, rounded holiday feel
-  const textYFromBottom = ribbonBottomMargin;
+  const textYFromBottom = ribbonBottomMargin + Math.round(ribbonHeight / 2);
   const textOverlay = `l_text:Pacifico_70:${encodedText},co_rgb:000000/fl_layer_apply,g_south,y_${Math.round(textYFromBottom)}`;
 
   // Background public ID
   const backgroundId = 'holiday-assets/collage-bg';
 
   // Assemble the full URL
-  // Order: base transform, photo overlays, white ribbon, text overlay, background
+  // Order: background, base transform, photo overlays, white ribbon, text overlay
+  // Background must come first, then transformations are applied to it
   // White ribbon comes before text so it appears behind it
   const segments = [
+    backgroundId,
     baseTransform,
     ...photoOverlays,
     whiteRibbon,
     textOverlay,
-    backgroundId,
   ];
 
   const fullUrl = `${baseUrl}/${segments.join('/')}`;
