@@ -114,11 +114,11 @@ export default function UploadWidget({ onUpload }: UploadWidgetProps) {
         <button
           onClick={handleClick}
           disabled
-          className="px-6 py-3 bg-gray-400 text-white font-semibold rounded-lg cursor-not-allowed"
+          className="px-6 py-3 bg-gray-400 text-white font-bold rounded-lg cursor-not-allowed"
         >
           Add family photos
         </button>
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-red-700 font-semibold">{error}</p>
       </div>
     );
   }
@@ -127,9 +127,9 @@ export default function UploadWidget({ onUpload }: UploadWidgetProps) {
     <button
       onClick={handleClick}
       disabled={isLoading}
-      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-md transition-colors duration-200"
+      className="px-6 py-3 bg-gradient-to-r from-green-600 to-red-600 hover:from-green-700 hover:to-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
     >
-      {isLoading ? 'Loading...' : 'Add family photos'}
+      {isLoading ? 'Loading...' : '🎄 Add family photos 🎁'}
     </button>
   );
 }

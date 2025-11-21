@@ -1,9 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FamilyCollageApp from '../components/FamilyCollageApp.tsx';
+import HolidayLights from '../components/HolidayLights.tsx';
+import '../components/HolidayLights.css';
 ---
 
 <BaseLayout>
+  <HolidayLights client:load />
   <FamilyCollageApp client:load />
 </BaseLayout>
 

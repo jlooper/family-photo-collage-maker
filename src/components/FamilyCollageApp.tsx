@@ -19,7 +19,7 @@ type CollageLayout = {
 };
 
 export default function FamilyCollageApp() {
-  const [familyName, setFamilyName] = useState('Looper Family');
+  const [familyName, setFamilyName] = useState('Our Family');
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [collageLayout, setCollageLayout] = useState<CollageLayout>({
     position1: null,
@@ -31,6 +31,7 @@ export default function FamilyCollageApp() {
   const [copied, setCopied] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const [draggedPhoto, setDraggedPhoto] = useState<Photo | null>(null);
   const [hoveredPosition, setHoveredPosition] = useState<Position | null>(null);
   const [editedCollageUrl, setEditedCollageUrl] = useState<string>('');
@@ -115,6 +116,32 @@ export default function FamilyCollageApp() {
       ...prev,
       [position]: null,
     }));
+  };
+
+  const removePhoto = (photoToRemove: Photo) => {
+    // Remove from photos array
+    setPhotos((prev) => prev.filter((photo) => photo.publicId !== photoToRemove.publicId));
+    
+    // Remove from collage layout if it's in a position
+    setCollageLayout((prev) => {
+      const newLayout = { ...prev };
+      if (prev.position1?.publicId === photoToRemove.publicId) {
+        newLayout.position1 = null;
+      }
+      if (prev.position2?.publicId === photoToRemove.publicId) {
+        newLayout.position2 = null;
+      }
+      if (prev.position3?.publicId === photoToRemove.publicId) {
+        newLayout.position3 = null;
+      }
+      if (prev.position4?.publicId === photoToRemove.publicId) {
+        newLayout.position4 = null;
+      }
+      if (prev.position5?.publicId === photoToRemove.publicId) {
+        newLayout.position5 = null;
+      }
+      return newLayout;
+    });
   };
 
   const getPhotosInLayout = (): Photo[] => {
@@ -205,7 +232,7 @@ export default function FamilyCollageApp() {
           </svg>
           <span className="text-sm font-medium text-center">
             {isHovered ? (
-              <span className="text-blue-600 font-semibold">Drop here to add photo</span>
+              <span className="text-red-600 font-bold">Drop here to add photo</span>
             ) : (
               positionLabels[position]
             )}
@@ -322,6 +349,30 @@ export default function FamilyCollageApp() {
     ? buildCollageUrl(cloudName, photosForCollage, familyName)
     : '';
 
+  // Show loader when collage is being regenerated (when layout or family name changes)
+  const prevCollageLayoutRef = useRef<CollageLayout>(collageLayout);
+  const prevFamilyNameRef = useRef<string>(familyName);
+  
+  useEffect(() => {
+    const layoutChanged = JSON.stringify(prevCollageLayoutRef.current) !== JSON.stringify(collageLayout);
+    const nameChanged = prevFamilyNameRef.current !== familyName;
+    
+    if ((layoutChanged || nameChanged) && photosForCollage.length === 5 && collageUrl) {
+      setIsRegenerating(true);
+      const timer = setTimeout(() => {
+        setIsRegenerating(false);
+      }, 800); // Show loader for 800ms
+      
+      prevCollageLayoutRef.current = collageLayout;
+      prevFamilyNameRef.current = familyName;
+      
+      return () => clearTimeout(timer);
+    }
+    
+    prevCollageLayoutRef.current = collageLayout;
+    prevFamilyNameRef.current = familyName;
+  }, [collageLayout, familyName, photosForCollage.length, collageUrl]);
+
   // Update edited URL when the generated collage URL changes (when photos/family name changes)
   // This allows the user to edit the URL while still getting updates when the collage regenerates
   useEffect(() => {
@@ -337,20 +388,22 @@ export default function FamilyCollageApp() {
 
   return (
     <div className="space-y-8">
+      
+      
       {/* Header */}
-      <header className="text-center space-y-2">
-        <h1 className="text-4xl font-bold text-gray-900">
+      <header className="text-center space-y-4">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-600 via-amber-400 to-yellow-800 bg-clip-text text-transparent drop-shadow-lg leading-tight">
           Family Holiday Collage Maker
         </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Invite your family to upload photos, then generate a shareable holiday collage powered by Cloudinary.
+        <p className="text-lg text-black max-w-2xl mx-auto font-medium">
+          Build a holiday card by uploading photos, then generate a shareable holiday collage powered by Cloudinary.
         </p>
       </header>
 
       {/* Controls */}
-      <section className="bg-white rounded-xl shadow-md p-6 space-y-4">
+      <section className="bg-white rounded-xl shadow-lg border-2 border-red-100 p-6 space-y-4">
         <div className="space-y-2">
-          <label htmlFor="family-name" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="family-name" className="block text-sm font-semibold text-red-700">
             Family Name
           </label>
           <input
@@ -358,7 +411,7 @@ export default function FamilyCollageApp() {
             type="text"
             value={familyName}
             onChange={(e) => setFamilyName(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border-2 border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
             placeholder="Enter your family name"
           />
         </div>
@@ -372,8 +425,8 @@ export default function FamilyCollageApp() {
           className={`
             relative border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-200
             ${isDragging 
-              ? 'border-blue-500 bg-blue-50' 
-              : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
+              ? 'border-red-500 bg-red-50 shadow-lg' 
+              : 'border-green-300 bg-green-50 hover:border-green-400 hover:bg-green-100'
             }
             ${isUploading ? 'pointer-events-none opacity-60' : 'cursor-pointer'}
           `}
@@ -402,39 +455,107 @@ export default function FamilyCollageApp() {
                 strokeLinejoin="round"
               />
             </svg>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-700">
               {isUploading ? (
-                <span className="font-medium">Uploading photos...</span>
+                <span className="font-semibold text-green-600">Uploading photos...</span>
               ) : isDragging ? (
-                <span className="font-medium text-blue-600">Drop photos here</span>
+                <span className="font-semibold text-red-600">Drop photos here</span>
               ) : (
                 <>
-                  <span className="font-medium text-blue-600">Click to upload</span>
+                  <span className="font-semibold text-green-600">Click to upload</span>
                   {' or drag and drop'}
                 </>
               )}
             </div>
-            <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB each • Upload exactly 5 photos</p>
+            <p className="text-xs text-gray-600 font-medium">PNG, JPG, GIF up to 10MB each • Upload exactly 5 photos</p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="text-sm text-gray-500">or</span>
-          <div className="flex-1 border-t border-gray-300"></div>
+          <div className="flex-1 border-t-2 border-green-300"></div>
+          <span className="text-sm font-semibold text-red-600">or</span>
+          <div className="flex-1 border-t-2 border-red-300"></div>
         </div>
 
-        <div>
+        <div className="flex justify-center">
           <UploadWidget onUpload={handleUpload} />
         </div>
       </section>
 
+        {/* Uploads Gallery */}
+        {photos.length > 0 && (
+        <section className="bg-gradient-to-br from-green-50 to-red-50 rounded-xl shadow-lg border-2 border-green-300 p-6">
+          <h2 className="text-2xl font-bold text-green-700 mb-4">
+            Your Photos ({photos.length} / 5)
+          </h2>
+          <p className="text-sm text-gray-700 mb-4 font-medium">
+            Drag photos from here into the collage positions above
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {photos.map((photo, index) => {
+              const isInLayout = 
+                collageLayout.position1?.publicId === photo.publicId ||
+                collageLayout.position2?.publicId === photo.publicId ||
+                collageLayout.position3?.publicId === photo.publicId ||
+                collageLayout.position4?.publicId === photo.publicId ||
+                collageLayout.position5?.publicId === photo.publicId;
+              
+              return (
+                <div
+                  key={index}
+                  draggable
+                  onDragStart={() => handlePhotoDragStart(photo)}
+                  onDragEnd={handlePhotoDragEnd}
+                  className={`
+                    relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-move group
+                    transition-opacity duration-200
+                    ${isInLayout ? 'ring-2 ring-yellow-500 ring-offset-2' : 'hover:ring-2 hover:ring-red-300'}
+                  `}
+                >
+                  <img
+                    src={photo.url}
+                    alt={`Family photo ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  {isInLayout && (
+                    <div className="absolute top-1 left-1 bg-gradient-to-r from-red-500 to-green-500 text-white text-xs font-bold px-2 py-1 rounded shadow-lg">
+                      In collage
+                    </div>
+                  )}
+                  {/* Remove button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removePhoto(photo);
+                    }}
+                    className="absolute top-1 right-1 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                    title="Remove photo"
+                    aria-label="Remove photo"
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+            {/* Show empty slots if less than 5 */}
+            {Array.from({ length: Math.max(0, 5 - photos.length) }).map((_, index) => (
+              <div
+                key={`empty-${index}`}
+                className="aspect-square rounded-lg border-2 border-dashed border-yellow-300 bg-yellow-50 flex items-center justify-center"
+              >
+                <span className="text-yellow-600 text-xs font-medium">Empty</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Collage Layout Arrangement - Masonry Grid */}
-      <section className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+      <section className="bg-gradient-to-br from-red-50 to-green-50 rounded-xl shadow-lg border-2 border-yellow-300 p-6">
+        <h2 className="text-2xl font-bold text-red-700 mb-2">
           Arrange Your Collage (5 Photos Required)
         </h2>
-        <p className="text-sm text-gray-600 mb-6">
+        <p className="text-sm text-gray-700 mb-6 font-medium">
           Drag photos between positions to reorder them. Drag from gallery below to add photos.
         </p>
         
@@ -455,12 +576,12 @@ export default function FamilyCollageApp() {
                 relative rounded-xl border-2 transition-all duration-200 overflow-hidden
                 shadow-md hover:shadow-lg h-full min-h-[600px]
                 ${collageLayout.position1 
-                  ? 'border-gray-300 bg-white' 
+                  ? 'border-yellow-400 bg-white' 
                   : hoveredPosition === 'position1'
-                    ? 'border-blue-500 bg-blue-50 shadow-xl scale-105' 
-                    : 'border-gray-200 bg-gray-50'
+                    ? 'border-red-500 bg-red-50 shadow-xl scale-105' 
+                    : 'border-green-200 bg-green-50'
                 }
-                ${draggedFromPosition === 'position1' ? 'opacity-50 border-blue-300' : ''}
+                ${draggedFromPosition === 'position1' ? 'opacity-50 border-yellow-300' : ''}
                 ${draggedPhoto && !collageLayout.position1 ? 'cursor-pointer' : ''}
               `}
             >
@@ -483,12 +604,12 @@ export default function FamilyCollageApp() {
                 relative rounded-xl border-2 transition-all duration-200 overflow-hidden
                 shadow-md hover:shadow-lg h-[400px]
                 ${collageLayout.position2 
-                  ? 'border-gray-300 bg-white' 
+                  ? 'border-yellow-400 bg-white' 
                   : hoveredPosition === 'position2'
-                    ? 'border-blue-500 bg-blue-50 shadow-xl scale-105' 
-                    : 'border-gray-200 bg-gray-50'
+                    ? 'border-red-500 bg-red-50 shadow-xl scale-105' 
+                    : 'border-green-200 bg-green-50'
                 }
-                ${draggedFromPosition === 'position2' ? 'opacity-50 border-blue-300' : ''}
+                ${draggedFromPosition === 'position2' ? 'opacity-50 border-yellow-300' : ''}
                 ${draggedPhoto && !collageLayout.position2 ? 'cursor-pointer' : ''}
               `}
             >
@@ -508,12 +629,12 @@ export default function FamilyCollageApp() {
                 relative rounded-xl border-2 transition-all duration-200 overflow-hidden
                 shadow-md hover:shadow-lg h-[200px]
                 ${collageLayout.position3 
-                  ? 'border-gray-300 bg-white' 
+                  ? 'border-yellow-400 bg-white' 
                   : hoveredPosition === 'position3'
-                    ? 'border-blue-500 bg-blue-50 shadow-xl scale-105' 
-                    : 'border-gray-200 bg-gray-50'
+                    ? 'border-red-500 bg-red-50 shadow-xl scale-105' 
+                    : 'border-green-200 bg-green-50'
                 }
-                ${draggedFromPosition === 'position3' ? 'opacity-50 border-blue-300' : ''}
+                ${draggedFromPosition === 'position3' ? 'opacity-50 border-yellow-300' : ''}
                 ${draggedPhoto && !collageLayout.position3 ? 'cursor-pointer' : ''}
               `}
             >
@@ -536,12 +657,12 @@ export default function FamilyCollageApp() {
                 relative rounded-xl border-2 transition-all duration-200 overflow-hidden
                 shadow-md hover:shadow-lg h-[200px]
                 ${collageLayout.position4 
-                  ? 'border-gray-300 bg-white' 
+                  ? 'border-yellow-400 bg-white' 
                   : hoveredPosition === 'position4'
-                    ? 'border-blue-500 bg-blue-50 shadow-xl scale-105' 
-                    : 'border-gray-200 bg-gray-50'
+                    ? 'border-red-500 bg-red-50 shadow-xl scale-105' 
+                    : 'border-green-200 bg-green-50'
                 }
-                ${draggedFromPosition === 'position4' ? 'opacity-50 border-blue-300' : ''}
+                ${draggedFromPosition === 'position4' ? 'opacity-50 border-yellow-300' : ''}
                 ${draggedPhoto && !collageLayout.position4 ? 'cursor-pointer' : ''}
               `}
             >
@@ -561,12 +682,12 @@ export default function FamilyCollageApp() {
                 relative rounded-xl border-2 transition-all duration-200 overflow-hidden
                 shadow-md hover:shadow-lg h-[400px]
                 ${collageLayout.position5 
-                  ? 'border-gray-300 bg-white' 
+                  ? 'border-yellow-400 bg-white' 
                   : hoveredPosition === 'position5'
-                    ? 'border-blue-500 bg-blue-50 shadow-xl scale-105' 
-                    : 'border-gray-200 bg-gray-50'
+                    ? 'border-red-500 bg-red-50 shadow-xl scale-105' 
+                    : 'border-green-200 bg-green-50'
                 }
-                ${draggedFromPosition === 'position5' ? 'opacity-50 border-blue-300' : ''}
+                ${draggedFromPosition === 'position5' ? 'opacity-50 border-yellow-300' : ''}
                 ${draggedPhoto && !collageLayout.position5 ? 'cursor-pointer' : ''}
               `}
             >
@@ -576,103 +697,76 @@ export default function FamilyCollageApp() {
         </div>
 
         {photosForCollage.length < 5 && (
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800">
+          <div className="mt-6 p-4 bg-yellow-100 border-2 border-yellow-400 rounded-lg shadow-md">
+            <p className="text-sm text-yellow-900 font-semibold">
               <strong>Incomplete collage:</strong> You need {5 - photosForCollage.length} more photo{5 - photosForCollage.length !== 1 ? 's' : ''} to complete your collage.
             </p>
           </div>
         )}
       </section>
 
-      {/* Uploads Gallery */}
-      {photos.length > 0 && (
-        <section className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-            Your Photos ({photos.length} / 5)
-          </h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Drag photos from here into the collage positions above
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {photos.map((photo, index) => {
-              const isInLayout = 
-                collageLayout.position1?.publicId === photo.publicId ||
-                collageLayout.position2?.publicId === photo.publicId ||
-                collageLayout.position3?.publicId === photo.publicId ||
-                collageLayout.position4?.publicId === photo.publicId ||
-                collageLayout.position5?.publicId === photo.publicId;
-              
-              return (
-                <div
-                  key={index}
-                  draggable
-                  onDragStart={() => handlePhotoDragStart(photo)}
-                  onDragEnd={handlePhotoDragEnd}
-                  className={`
-                    relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-move
-                    transition-opacity duration-200
-                    ${isInLayout ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:ring-2 hover:ring-gray-300'}
-                  `}
-                >
-                  <img
-                    src={photo.url}
-                    alt={`Family photo ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  {isInLayout && (
-                    <div className="absolute top-1 left-1 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
-                      In collage
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-            {/* Show empty slots if less than 5 */}
-            {Array.from({ length: Math.max(0, 5 - photos.length) }).map((_, index) => (
-              <div
-                key={`empty-${index}`}
-                className="aspect-square rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
-              >
-                <span className="text-gray-400 text-xs">Empty</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+    
 
       {/* Generated Collage */}
-      <section className="bg-white rounded-xl shadow-md p-6 space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-900">
+      <section className="bg-gradient-to-br from-red-50 via-yellow-50 to-green-50 rounded-xl shadow-lg border-2 border-red-300 p-6 space-y-4">
+        <h2 className="text-2xl font-bold text-red-700">
           Your Holiday Collage
         </h2>
 
         {photosForCollage.length < 5 ? (
-          <p className="text-gray-500 italic">
+          <p className="text-gray-700 italic font-medium">
             {photos.length === 0 
               ? 'Upload 5 photos to create your collage.' 
               : `Add ${5 - photosForCollage.length} more photo${5 - photosForCollage.length !== 1 ? 's' : ''} to the position slots above to see your collage.`}
           </p>
         ) : (
           <>
-            <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden">
+            <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden min-h-[200px] flex items-center justify-center">
+              {isRegenerating ? (
+                <div className="py-12 flex flex-col items-center justify-center">
+                  <div className="relative">
+                    {/* Christmas Tree */}
+                    <div className="text-6xl mb-4 animate-bounce" style={{ animationDuration: '1s' }}>
+                      🎄
+                    </div>
+                    {/* Snowflakes */}
+                    <div className="absolute -top-4 -left-4 text-2xl animate-spin" style={{ animationDuration: '3s' }}>
+                      ❄️
+                    </div>
+                    <div className="absolute -top-4 -right-4 text-2xl animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }}>
+                      ❄️
+                    </div>
+                    <div className="absolute -bottom-2 left-0 text-xl animate-pulse">
+                      ⭐
+                    </div>
+                    <div className="absolute -bottom-2 right-0 text-xl animate-pulse" style={{ animationDelay: '0.3s' }}>
+                      ⭐
+                    </div>
+                  </div>
+                  <p className="text-lg font-bold text-red-600 mt-4 animate-pulse">
+                    Creating your holiday collage...
+                  </p>
+                </div>
+              ) : (
                 <img
                   src={displayUrl}
                   alt="Family holiday collage"
                   className="w-full h-auto"
                 />
-              </div>
+              )}
+            </div>
 
             <div className="space-y-2">
-              <label htmlFor="collage-url" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="collage-url" className="block text-sm font-semibold text-red-700">
                 Collage URL
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-center items-center">
                 <input
                   id="collage-url"
                   type="text"
                   value={displayUrl}
                   onChange={(e) => setEditedCollageUrl(e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 max-w-2xl px-4 py-2 border-2 border-green-300 rounded-lg bg-white text-sm font-mono focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                   placeholder="Edit the collage URL here"
                 />
                 <button
@@ -681,9 +775,9 @@ export default function FamilyCollageApp() {
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                   }}
-                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200 whitespace-nowrap"
+                  className="px-6 py-2 bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white font-bold rounded-lg transition-all duration-200 whitespace-nowrap shadow-lg hover:shadow-xl"
                 >
-                  {copied ? 'Copied!' : 'Copy URL'}
+                  {copied ? '✓ Copied!' : 'Copy URL'}
                 </button>
               </div>
             </div>

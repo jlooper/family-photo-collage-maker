@@ -17,9 +17,13 @@ const { title = "Family Holiday Collage Maker" } = Astro.props;
     <title>{title}</title>
     <script src="https://widget.cloudinary.com/v2.0/global/all.js" defer></script>
   </head>
-  <body class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-    <div class="max-w-4xl mx-auto px-4 py-8">
-      <slot />
+  <body class="min-h-screen bg-green-900">
+    <div class="candy-cane-border-wrapper">
+      <div class="white-card">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+          <slot />
+        </div>
+      </div>
     </div>
   </body>
 </html>
@@ -27,6 +31,32 @@ const { title = "Family Holiday Collage Maker" } = Astro.props;
 <style is:global>
   html {
     font-family: system-ui, sans-serif;
+  }
+
+  .candy-cane-border-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+    width: 100%;
+  }
+
+  .white-card {
+    background: repeating-linear-gradient(
+      45deg,
+      #ef4444 0px,
+      #ef4444 10px,
+      #ffffff 10px,
+      #ffffff 20px
+    );
+    padding: 10px;
+    width: 100%;
+    max-width: 56rem;
+  }
+
+  .white-card > div {
+    background: white;
   }
 </style>
 
