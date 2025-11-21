@@ -1,0 +1,509 @@
+/* Toggle button - always visible */
+.elf-toggle {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c00 0%, #090 100%);
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  padding: 0;
+  overflow: hidden;
+}
+
+.elf-toggle:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.6);
+}
+
+.elf-toggle:active {
+  transform: scale(0.95);
+}
+
+.elf-toggle-icon {
+  font-size: 32px;
+  display: block;
+  animation: bounce 2s infinite;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.elf-container {
+  position: fixed;
+  bottom: -250px;
+  left: 20px;
+  transform: translateX(0);
+  z-index: 9999;
+  transition: bottom 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+}
+
+.elf-container.visible {
+  bottom: 100px;
+  pointer-events: all;
+  visibility: visible;
+}
+
+/* Speech bubble */
+.elf-speech-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 15px;
+  background: white;
+  border: none;
+  border-radius: 20px;
+  padding: 12px 18px;
+  padding-bottom: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  min-width: 120px;
+  text-align: center;
+  animation: fadeInBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.elf-speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 15px solid white;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+}
+
+.elf-speech-bubble p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.3;
+}
+
+@keyframes fadeInBounce {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px) scale(0.8);
+  }
+  60% {
+    transform: translateX(-50%) translateY(5px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.elf-close {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #c00;
+  border: 2px solid #c00;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+  pointer-events: all;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.elf-close:hover {
+  background: #c00;
+  color: white;
+  transform: scale(1.1);
+}
+
+.elf-canvas {
+  --red: #c00;
+  --white: #eee;
+  --green: #090;
+  --green-dark: #080;
+  --green-darker: #070;
+  --skin: #fca;
+  --skin-dark: #fb9;
+  --skin-darker: #ea8;
+  
+  width: 80vmin;
+  height: 80vmin;
+  max-width: 200px;
+  max-height: 200px;
+  position: relative;
+  cursor: pointer;
+}
+
+.elf-canvas div,
+.elf-canvas div::before,
+.elf-canvas div::after {
+  position: absolute;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Shadow */
+.shadow {
+  width: 60%;
+  height: 3%;
+  background: #0002;
+  border-radius: 100% / 0 0 200% 200%;
+  top: 98.5%;
+  left: 50%;
+  transform: translate(-45%, 0);
+  filter: blur(5px);
+}
+
+/* Legs */
+.leg {
+  bottom: 0;
+  left: 42%;
+  width: 20%;
+  height: 30%;
+  border-radius: 30% / 100%;
+  background:
+    radial-gradient(farthest-side at 100% 30%, #000, #0000),
+    radial-gradient(farthest-side at 100% 70%, #000, #0000),
+    repeating-radial-gradient(circle at 50% -40%, var(--red) 0 8%, var(--white) 0 16%);
+  background-color: #f008;
+  -webkit-mask:
+    radial-gradient(100% 150% at 60% 55%, #0000 50%, #000 51%);
+  mask:
+    radial-gradient(100% 150% at 60% 55%, #0000 50%, #000 51%);
+}
+
+.leg + .leg {
+  left: 38%;
+  transform: scaleX(-1);
+  border-radius: 35% / 100%;
+  -webkit-mask:
+    radial-gradient(100% 150% at 60% 55%, #0000 49%, #000 50%);
+  mask:
+    radial-gradient(100% 150% at 60% 55%, #0000 49%, #000 50%);
+}
+
+/* Boots */
+.boot {
+  width: 15%;
+  height: 3%;
+  bottom: 0;
+  left: 31%;
+  border-radius: 50% 100% 100% 100% / 10% 20% 0 10vmin;
+  background: var(--green);
+  -webkit-mask:
+    radial-gradient(100% 50% at 100% 0%, #0000 98%, #000 100%);
+  mask:
+    radial-gradient(100% 50% at 100% 0%, #0000 98%, #000 100%);
+}
+
+.boot + .boot {
+  transform: scaleX(-1);
+  left: 54%;
+}
+
+.boot-top {
+  width: 5%;
+  height: 2%;
+  background: var(--green-darker);
+  border-radius: 5vmin;
+  bottom: 1.25%;
+  left: 41.5%;
+  transform: rotate(2deg);
+}
+
+.boot-top + .boot-top {
+  left: 53.5%;
+  transform: rotate(-4deg);
+}
+
+/* Vest */
+.vest {
+  width: 18.5%;
+  background: var(--green);
+  background: linear-gradient(var(--green-dark), var(--green));
+  top: 65%;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 13%;
+  clip-path: polygon(0% 0, 100% 0%, 100% 100%, 80% 72%, 69% 98%, 50% 70%, 28% 100%, 25% 67%, 0% 100%);
+  -webkit-mask:
+    radial-gradient(100% 320% at 50% 100%, #000 49%, #0000 50%);
+  mask: radial-gradient(100% 320% at 50% 100%, #000 49%, #0000 50%);
+  box-shadow: 
+    inset -2vmin 0 1vmin var(--green-dark), 
+    inset 2vmin 0 1vmin var(--green-dark),
+    inset 0vmin 2vmin 1vmin var(--green-dark);
+}
+
+/* Belt */
+.belt {
+  width: 14.5%;
+  height: 4%;
+  background: #222;
+  top: 61%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 10% 10% 0 0;
+}
+
+.belt::before {
+  content: "";
+  width: 40%;
+  height: 120%;
+  border: 0.75vmin solid gold;
+  top: -10%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background:
+    linear-gradient(gold 0 0) no-repeat 80% 50% / 25% 15%;
+}
+
+/* Body */
+.body {
+  width: 14.25%;
+  height: 21%;
+  top: 41%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 40% 30% 0 0;
+  background:
+    radial-gradient(circle at 50% 25%, gold 4%, #0000 0),
+    radial-gradient(circle at 50% 50%, gold 5%, #0000 0),
+    radial-gradient(circle at 50% 75%, gold 4%, #0000 0);
+  background-color: var(--green);
+  box-shadow:
+    inset 0 1vmin 2vmin var(--green),
+    inset -1vmin 0 2vmin var(--green-dark), 
+    inset 1vmin 0 2vmin var(--green-dark),
+    inset 0 -1vmin 2vmin var(--green-dark);
+}
+
+/* Collar */
+.collar {
+  width: 17%;
+  height: 5%;
+  background: var(--white);
+  clip-path: polygon(0% 0, 100% 0%, 100% 100%, 80% 62%, 69% 98%, 50% 50%, 28% 100%, 25% 57%, 0% 100%);
+  -webkit-mask:
+    radial-gradient(100% 200% at 50% 100%, #000 49%, #0000 50%);
+  mask: radial-gradient(100% 200% at 50% 100%, #000 49%, #0000 50%);
+  top: 39.5%;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+/* Arms */
+.arm-left {
+  width: 20%;
+  height: 36%;
+  top: 35%;
+  left: 27%;
+  background:
+    radial-gradient(100% 150% at 100% 100%, #0000 50%, var(--green-dark) 0, var(--green) 57%, #0000 0);
+  transform: rotate(5deg);
+}
+
+.arm-right {
+  width: 25%;
+  height: 25%;
+  top: 40%;
+  left: 57.5%;
+  transform: rotate(0);
+  background:
+    radial-gradient(100% 150% at 45% 0%, #0000 40%, var(--green) 0, var(--green-dark) 45%, #0000 0);
+  transform: rotate(-10deg);
+}
+
+/* Hands */
+.hand {
+  width: 5%;
+  height: 5%;
+  background: var(--skin);
+  border-radius: 50%;
+  top: 70.5%;
+  left: 32%;
+  box-shadow: inset 0 0 2vmin var(--skin-darker);
+}
+
+.hand + .hand {
+  top: 35%;
+  left: 74.5%;
+}
+
+/* Neck */
+.neck {
+  width: 3%;
+  height: 4%;
+  background: linear-gradient(var(--skin-darker) 50%, var(--skin));
+  border-radius: 100% / 30%;
+  top: 37%;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+/* Head */
+.head {
+  height: 18%;
+  width: 14%;
+  background:
+    radial-gradient(circle at 30% 23%, var(--skin) 10%, #0000 0),
+    radial-gradient(circle at 72% 21%, var(--skin) 12%, #0000 0),
+    radial-gradient(circle at 40% 23%, maroon 10%, #0000 0),
+    radial-gradient(circle at 60% 21%, maroon 10%, #0000 0);
+  background-color: var(--skin);
+  border-radius: 100% / 80% 80% 120% 120%;
+  top: 20.5%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  box-shadow:
+    inset 0 1vmin 2vmin 0.25vmin var(--skin-dark);
+  position: relative;
+}
+
+/* Ears */
+.ear {
+  width: 4%;
+  height: 8%;
+  background: var(--skin-darker);
+  background: linear-gradient(to left, var(--skin-darker), var(--skin-dark));
+  border-radius: 0 200% 20% 200%;
+  top: 27%;
+  left: 40.5%;
+  box-shadow: 1.75vmin 0 maroon;
+}
+
+.ear + .ear {
+  transform: scaleX(-1) rotate(-3deg);
+  left: 55.5%;
+  box-shadow: 2vmin 0 maroon;
+}
+
+/* Mouth */
+.mouth {
+  width: 30%;
+  height: 10%;
+  background: var(--red);
+  background: linear-gradient(#fff 30%, var(--red) 0);
+  border-radius: 50% / 0 0 100% 100%;
+  left: 50%;
+  top: 79%;
+  transform: translateX(-50%);
+  position: absolute;
+}
+
+/* Eye */
+.eye {
+  --pos: 23%;
+  width: 18%;
+  height: 15%;
+  background: #222;
+  border-radius: 50%;
+  top: 43%;
+  left: var(--pos);
+  background-image: radial-gradient(circle at 25% 25%, #fff 10%, #fff0 0);
+  position: absolute;
+}
+
+.eye + .eye {
+  left: auto;
+  right: var(--pos);
+}
+
+/* Cheek */
+.cheek {
+  width: 30%;
+  height: 10%;
+  background: red;
+  top: 60%;
+  left: 10%;
+  border-radius: 50%;
+  opacity: 0.1;
+  position: absolute;
+}
+
+.cheek + .cheek {
+  left: auto;
+  right: 10%;
+}
+
+/* Nose */
+.nose {
+  border: 0.125vmin solid #0000;
+  border-top: 0.4vmin solid #222;
+  top: 60%;
+  left: 50%;
+  transform: translateX(-50%) rotate(15deg);
+  border-radius: 50%;
+  width: 20%;
+  height: 20%;
+  position: absolute;
+}
+
+/* Hat */
+.hat {
+    width: 14.25%;
+    height: 10%;
+    border-radius: 100% / 40%;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: inset 0 2vmin var(--white);
+}
+
+/* Hat Top */
+.hat-top {
+  width: 14%;
+  height: 14%;
+  background: var(--green);
+  border-radius: 100% 10% 0 0;
+  transform: translateX(-50%) rotate(6deg);
+  left: 50.75%;
+  top: 11%;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 90%, 0% 100%);
+}
+
+/* Bell */
+.bell {
+  width: 5%;
+  height: 5%;
+  background:
+    radial-gradient(circle at 60% 50%, darkorange 15%, #0000 0),
+    linear-gradient(to right, #0000 56%, darkorange 0 63%, #0000 0) no-repeat 50% 100% / 100% 50%;
+  background-color: gold;
+  border-radius: 50%;
+  top: 9.5%;
+  left: 57%;
+  transform: rotate(-20deg);
+}
+

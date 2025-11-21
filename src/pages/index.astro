@@ -2,11 +2,14 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FamilyCollageApp from '../components/FamilyCollageApp.tsx';
 import HolidayLights from '../components/HolidayLights.tsx';
+import ElfPopup from '../components/ElfPopup.tsx';
 import '../components/HolidayLights.css';
+import '../components/ElfPopup.css';
 ---
 
 <BaseLayout>
   <HolidayLights client:load />
   <FamilyCollageApp client:load />
+  <ElfPopup client:load />
 </BaseLayout>
 

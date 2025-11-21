@@ -4,6 +4,17 @@ interface Props {
 }
 
 const { title = "Family Holiday Collage Maker" } = Astro.props;
+
+// Generate snowflake positions and delays
+const snowflakes = Array.from({ length: 50 }).map((_, i) => ({
+  id: i,
+  left: (i * 7.5) % 100, // Distribute across width
+  delay: -((i * 0.2) % 10), // Negative delay - start at different points in animation cycle
+  duration: 10 + (i % 10) * 0.5, // Vary speeds (10-15s)
+  size: 1.2 + (i % 4) * 0.2, // Vary sizes
+  drift: (i % 3) - 1, // -1, 0, or 1 for horizontal drift
+  startTop: -10 + ((i * 2.2) % 110), // Distribute starting positions from -10% to 100%
+}));
 ---
 
 <!doctype html>
@@ -17,7 +28,24 @@ const { title = "Family Holiday Collage Maker" } = Astro.props;
     <title>{title}</title>
     <script src="https://widget.cloudinary.com/v2.0/global/all.js" defer></script>
   </head>
-  <body class="min-h-screen bg-green-900">
+  <body class="min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-slate-950 relative overflow-x-hidden">
+    <div class="snowflakes" aria-hidden="true">
+      {snowflakes.map((snowflake) => (
+        <div
+          class="snowflake"
+          style={`
+            left: ${snowflake.left}%;
+            top: ${snowflake.startTop}%;
+            animation-delay: ${snowflake.delay}s;
+            animation-duration: ${snowflake.duration}s;
+            font-size: ${snowflake.size}em;
+            --drift: ${snowflake.drift};
+          `}
+        >
+          ❄
+        </div>
+      ))}
+    </div>
     <div class="candy-cane-border-wrapper">
       <div class="white-card">
         <div class="max-w-4xl mx-auto px-4 py-8">
@@ -33,6 +61,45 @@ const { title = "Family Holiday Collage Maker" } = Astro.props;
     font-family: system-ui, sans-serif;
   }
 
+  body {
+    position: relative;
+  }
+
+  .snowflakes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .snowflake {
+    position: absolute;
+    color: white;
+    opacity: 0.7;
+    user-select: none;
+    animation: fall linear infinite;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  }
+
+  @keyframes fall {
+    0% {
+      transform: translateY(0) translateX(0px) rotate(0deg);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(50vh) translateX(calc(var(--drift) * 30px)) rotate(180deg);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(110vh) translateX(calc(var(--drift) * -20px)) rotate(360deg);
+      opacity: 0.7;
+    }
+  }
+
   .candy-cane-border-wrapper {
     display: flex;
     justify-content: center;
@@ -40,6 +107,8 @@ const { title = "Family Holiday Collage Maker" } = Astro.props;
     min-height: 100vh;
     padding: 20px;
     width: 100%;
+    position: relative;
+    z-index: 10;
   }
 
   .white-card {

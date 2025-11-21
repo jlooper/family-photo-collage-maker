@@ -392,7 +392,7 @@ export default function FamilyCollageApp() {
       
       {/* Header */}
       <header className="text-center space-y-4">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-600 via-amber-400 to-yellow-800 bg-clip-text text-transparent drop-shadow-lg leading-tight">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-900 via-blue-700 to-slate-900 bg-clip-text text-transparent drop-shadow-lg leading-tight">
           Family Holiday Collage Maker
         </h1>
         <p className="text-lg text-black max-w-2xl mx-auto font-medium">
