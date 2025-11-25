@@ -2,6 +2,8 @@
 
 A beautiful web app built with Astro, React, TypeScript, and Tailwind CSS that lets families upload photos and generate shareable holiday collages using Cloudinary transformations.
 
+![building a card](screenshot.png)
+
 ## Features
 
 - Upload multiple family photos via Cloudinary Upload Widget
